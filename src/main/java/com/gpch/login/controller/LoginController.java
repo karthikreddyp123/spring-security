@@ -3,6 +3,7 @@ package com.gpch.login.controller;
 import com.gpch.login.model.User;
 import com.gpch.login.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -45,19 +46,17 @@ public class LoginController {
                     .rejectValue("userName", "error.user",
                             "There is already a user registered with the user name provided");
         }
-        if (bindingResult.hasErrors()) {
-            modelAndView.setViewName("registration");
-        } else {
+        if (!bindingResult.hasErrors()) {
             userService.saveUser(user);
             modelAndView.addObject("successMessage", "User has been registered successfully");
             modelAndView.addObject("user", new User());
-            modelAndView.setViewName("registration");
-
         }
+        modelAndView.setViewName("registration");
         return modelAndView;
     }
 
     @GetMapping(value="/admin/home")
+    @PreAuthorize("permitAll()")
     public ModelAndView home(){
         ModelAndView modelAndView = new ModelAndView();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
